@@ -1,6 +1,8 @@
 mod mapper1;
 mod mapper2;
 
+use alloc::boxed::Box;
+
 use super::apu::APUState;
 use super::cart::{Cart, MapperID, Mirroring};
 use super::controller::Controller;
@@ -14,10 +16,10 @@ pub trait Mapper {
     fn write(&mut self, address: u16, value: u8);
 }
 
-impl Mapper {
+impl dyn Mapper {
     /// Dynamically assigns the correct mapper based on the cart.
     /// Returns an error if the mapper is unkown
-    pub fn with_cart(cart: Cart) -> Box<Mapper> {
+    pub fn with_cart(cart: Cart) -> Box<dyn Mapper> {
         match cart.mapper {
             MapperID::M1 => Box::new(mapper1::Mapper1::new(cart)),
             MapperID::M2 => Box::new(mapper2::Mapper2::new(cart)),
@@ -30,7 +32,7 @@ pub(crate) struct MemoryBus {
     // Contains the mapper logic for interfacing with the cart
     // Each mapper has a different structure depending on what it
     // might need to keep track of, so we need to use dynamic dispatch.
-    pub mapper: Box<Mapper>,
+    pub mapper: Box<dyn Mapper>,
     pub apu: APUState,
     pub cpu: CPUState,
     pub ppu: PPUState,
@@ -43,7 +45,7 @@ pub(crate) struct MemoryBus {
 impl MemoryBus {
     /// Creates a memory bus from a c
     pub fn with_cart(cart: Cart) -> Self {
-        let mapper = Mapper::with_cart(cart);
+        let mapper = <dyn Mapper>::with_cart(cart);
         MemoryBus {
             mapper,
             apu: APUState::new(),

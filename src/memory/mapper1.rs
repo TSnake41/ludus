@@ -161,7 +161,7 @@ impl CHRBanks {
     }
 
     fn index(&self, address: u16) -> usize {
-        let index = if address < 0x1000 {
+        if address < 0x1000 {
             let shift = address as usize;
             self.bank_0 * CHR_BANK_SIZE + shift
         } else if address < 0x2000 {
@@ -169,8 +169,7 @@ impl CHRBanks {
             self.bank_1 * CHR_BANK_SIZE + shift
         } else {
             unreachable!("Address out of CHR bounds: {:X}", address);
-        };
-        index
+        }
     }
 
     fn set_switching<S: Into<CHRSwitching>>(&mut self, switching: S) {
@@ -229,8 +228,8 @@ impl Mapper1 {
         let chr = CHRBanks::from_cart(&cart);
         Mapper1 {
             cart,
-            prg: prg,
-            chr: chr,
+            prg,
+            chr,
             shift_register: ShiftRegister::default(),
         }
     }

@@ -31,7 +31,7 @@ impl Console {
     /// 
     /// This needs access to the audio and video devices, because the APU
     /// may generate audio samples, and the PPU may generate a frame.
-    pub fn step<'a, A, V>(&'a mut self, audio: &mut A, video: &mut V) -> i32
+    pub fn step<A, V>(&mut self, audio: &mut A, video: &mut V) -> i32
     where
         A: AudioDevice,
         V: VideoDevice,
@@ -48,7 +48,7 @@ impl Console {
     }
 
     /// Advance the console by a certain number of micro seconds.
-    pub fn step_micros<'a, A, V>(&'a mut self, audio: &mut A, video: &mut V, micros: u32)
+    pub fn step_micros<A, V>(&mut self, audio: &mut A, video: &mut V, micros: u32)
     where
         A: AudioDevice,
         V: VideoDevice,
@@ -67,7 +67,7 @@ impl Console {
     /// This is more useful for applications that want to do something
     /// at the start of every frame, like playing the next frame of input
     /// from a recorded script, or things like that.
-    pub fn step_frame<'a, A, V>(&'a mut self, audio: &mut A, video: &mut V)
+    pub fn step_frame<A, V>(&mut self, audio: &mut A, video: &mut V)
     where
         A: AudioDevice,
         V: VideoDevice,

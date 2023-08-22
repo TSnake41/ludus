@@ -1,4 +1,6 @@
-use std::convert::TryFrom;
+use core::convert::TryFrom;
+
+use alloc::vec::Vec;
 
 /// Represents the possible errors when decoding a Cart
 #[derive(Clone, Copy, Debug)]

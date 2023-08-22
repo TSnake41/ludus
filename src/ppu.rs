@@ -1,3 +1,5 @@
+use alloc::boxed::Box;
+
 use super::memory::{Mapper, MemoryBus};
 
 use crate::ports::{PixelBuffer, VideoDevice};
@@ -256,7 +258,7 @@ impl PPUState {
         let v = self.v;
         let mut value = self.read(mapper, v);
         if v % 0x4000 < 0x3F00 {
-            std::mem::swap(&mut self.buffer_data, &mut value);
+            core::mem::swap(&mut self.buffer_data, &mut value);
         } else {
             let read = self.read(mapper, v - 0x1000);
             self.buffer_data = read;
@@ -341,7 +343,7 @@ impl PPUState {
         }
     }
 
-    fn write_data(&mut self, mapper: &mut Mapper, value: u8) {
+    fn write_data(&mut self, mapper: &mut dyn Mapper, value: u8) {
         let v = self.v;
         self.write(mapper, v, value);
         if self.flg_increment == 0 {
@@ -419,7 +421,7 @@ impl PPU {
         let mut ppu = PPU {
             cycle: 0,
             scanline: 0,
-            v_buffer: Box::new(PixelBuffer::default()),
+            v_buffer: Box::default(),
             nametable_byte: 0,
             attributetable_byte: 0,
             lowtile_byte: 0,
@@ -448,7 +450,7 @@ impl PPU {
     /// Used to clear vbuffers to make image completely neutral
     /// This isn't called in the standard reset.
     pub fn clear_vbuffers(&mut self) {
-        self.v_buffer = Box::new(PixelBuffer::default());
+        self.v_buffer = Box::default();
     }
 
     fn fetch_nametable_byte(&mut self, m: &mut MemoryBus) {
@@ -598,7 +600,7 @@ impl PPU {
             for i in 0..self.sprite_count {
                 let sp_off = i32::from(self.sprite_positions[i as usize]);
                 let mut offset = (self.cycle - 1) - sp_off;
-                if offset < 0 || offset > 7 {
+                if !(0..=7).contains(&offset) {
                     continue;
                 }
                 offset = 7 - offset;
